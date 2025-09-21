@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClinicAI - Assistente de Triagem</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", Helvetica, Arial, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0; 
+            padding: 20px;
+        }
+
+        #chat-container { 
+            width: 100%; 
+            max-width: 450px; 
+            height: 85vh; 
+            max-height: 700px;
+            border-radius: 24px; 
+            display: flex; 
+            flex-direction: column; 
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.2);
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            padding: 20px;
+            text-align: center;
+            color: white;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-new-chat-button {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            color: white;
+            padding: 8px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+
+        .header-new-chat-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-50%) translateY(-1px);
+        }
+
+        .chat-title {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            text-align: center;
+        }
+
+        .chat-title h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        .chat-title .subtitle {
+            margin: 5px 0 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        .status-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 12px;
+            height: 12px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        #chat-box { 
+            flex-grow: 1; 
+            padding: 24px; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 16px;
+            background: transparent;
+        }
+
+        #chat-box::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #chat-box::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #chat-box::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.1);
+            border-radius: 3px;
+        }
+
+        .message { 
+            padding: 14px 18px; 
+            border-radius: 20px; 
+            max-width: 85%; 
+            line-height: 1.5; 
+            font-size: 15px;
+            position: relative;
+            animation: messageSlideIn 0.3s ease-out;
+            word-wrap: break-word;
+        }
+
+        @keyframes messageSlideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            align-self: flex-end; 
+            border-bottom-right-radius: 6px;
+            box-shadow: 0 2px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .ai-message { 
+            background: white;
+            color: #374151;
+            align-self: flex-start; 
+            border-bottom-left-radius: 6px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #9ca3af;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        .typing-dot:nth-child(3) { animation-delay: 0; }
+
+        @keyframes typing {
+            0%, 80%, 100% {
+                transform: scale(0);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .chat-controls {
+            padding: 16px 24px;
+            border-top: 1px solid rgba(0,0,0,0.06);
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        #input-form { 
+            display: flex; 
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        #message-input { 
+            flex-grow: 1; 
+            border: 1px solid #e5e7eb; 
+            border-radius: 24px; 
+            padding: 12px 18px; 
+            font-size: 15px;
+            background: white;
+            color: #374151;
+            resize: none;
+            min-height: 44px;
+            max-height: 120px;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        #message-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        #message-input::placeholder {
+            color: #9ca3af;
+        }
+
+        #send-button { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; 
+            border: none; 
+            border-radius: 50%; 
+            width: 44px; 
+            height: 44px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        #send-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        #send-button:active {
+            transform: translateY(0);
+        }
+
+        #send-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Responsive design */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            #chat-container {
+                max-width: 100%;
+                height: 90vh;
+                border-radius: 16px;
+            }
+            
+            .chat-header {
+                padding: 16px;
+            }
+            
+            .header-new-chat-button {
+                left: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 11px;
+                padding: 6px 8px;
+            }
+            
+            #chat-box {
+                padding: 16px;
+            }
+            
+            .message {
+                max-width: 90%;
+                padding: 12px 16px;
+            }
+            
+            .chat-controls {
+                padding: 16px;
+            }
+        }
+
+        /* Accessibility improvements */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Focus indicators */
+        button:focus-visible,
+        input:focus-visible {
+            outline: 2px solid #667eea;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div class="chat-header">
+            <button class="header-new-chat-button" id="header-new-chat-button">
+                <i class="fas fa-plus"></i>
+                Nova
+            </button>
+            
+            <div class="chat-title">
+                <h1><i class="fas fa-robot"></i> ClinicAI</h1>
+                <div class="subtitle">Assistente de Triagem</div>
+            </div>
+            
+            <div class="status-indicator"></div>
+        </div>
+        
+        <div id="chat-box"></div>
+        
+        <div class="chat-controls">
+            <form id="input-form">
+                <input type="text" id="message-input" placeholder="Digite sua mensagem..." autocomplete="off">
+                <button id="send-button" type="submit">
+                    <i class="fas fa-arrow-up" style="color: white;"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chat-box');
+        const inputForm = document.getElementById('input-form');
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-button');
+        
+        let sessionId = localStorage.getItem('clinicai_session_id');
+        if (!sessionId) {
+            sessionId = 'session_' + Date.now() + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('clinicai_session_id', sessionId);
+        }
+
+        // Auto-resize textarea
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        // Send on Enter, new line on Shift+Enter
+        messageInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                inputForm.dispatchEvent(new Event('submit'));
+            }
+        });
+
+        inputForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const messageText = messageInput.value.trim();
+            if (!messageText) return;
+
+            addMessage(messageText, 'user-message');
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            messageInput.disabled = true;
+            sendButton.disabled = true;
+            
+            addTypingIndicator();
+
+            try {
+                const response = await fetch('http://localhost:8000/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        message: messageText
+                    })
+                });
+
+                removeTypingIndicator();
+
+                if (!response.ok) throw new Error('Falha na resposta da API');
+
+                const data = await response.json();
+                addMessage(data.response, 'ai-message');
+
+            } catch (error) {
+                console.error('Erro:', error);
+                removeTypingIndicator();
+                addMessage('Desculpe, não consegui me conectar. Tente novamente.', 'ai-message');
+            } finally {
+                messageInput.disabled = false;
+                sendButton.disabled = false;
+                messageInput.focus();
+            }
+        });
+
+        function addMessage(text, className) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', className);
+            messageElement.textContent = text;
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function addTypingIndicator() {
+            const typingElement = document.createElement('div');
+            typingElement.classList.add('message', 'ai-message');
+            typingElement.id = 'typing-indicator';
+            
+            const typingContent = document.createElement('div');
+            typingContent.classList.add('typing-indicator');
+            
+            for (let i = 0; i < 3; i++) {
+                const dot = document.createElement('div');
+                dot.classList.add('typing-dot');
+                typingContent.appendChild(dot);
+            }
+            
+            typingElement.appendChild(typingContent);
+            chatBox.appendChild(typingElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        const headerNewChatButton = document.getElementById('header-new-chat-button');
+        
+        function handleNewChat() {
+            if (confirm('Deseja realmente iniciar uma nova conversa? O histórico atual será perdido.')) {
+                localStorage.removeItem('clinicai_session_id');
+                window.location.reload();
+            }
+        }
+        
+        headerNewChatButton.addEventListener('click', handleNewChat);
+
+        // Adiciona a mensagem inicial do agente
+        setTimeout(() => {
+            addMessage('Olá! Eu sou a LIA, sua assistente virtual de triagem. Estou aqui para ajudar a agilizar seu atendimento, coletando suas informações iniciais, tá certo? 👩‍⚕️\n\nSó lembrando: eu não sou profissional de saúde, viu? Então não posso dar diagnóstico nem indicar tratamento. Mas simbora começar? Vai ser rapidinho! ✨', 'ai-message');
+        }, 500);
+    </script>
+</body>
+</html>

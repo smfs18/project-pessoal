@@ -1,0 +1,38 @@
+# --- Arquivos de Ambiente Virtual ---
+# Ignora a pasta do ambiente virtual do Python, que é grande e específica da sua máquina.
+venv/
+.venv/
+env/
+.env/
+
+# --- Arquivos de Cache e Bytecode do Python ---
+# Gerados automaticamente pelo Python, não precisam ser versionados.
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# --- Informações Sensíveis ---
+# CRÍTICO! NUNCA envie seu arquivo .env para um repositório. Ele contém suas chaves secretas.
+.env
+
+# --- Arquivos de IDEs e Editores de Código ---
+# Configurações pessoais do seu ambiente de desenvolvimento.
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# --- Arquivos de Teste ---
+# Cache gerado pelo Pytest para otimizar as execuções.
+.pytest_cache/
+.coverage
+
+# --- Arquivos de Sistema Operacional ---
+# Arquivos de metadados gerados pelo macOS e Windows.
+.DS_Store
+Thumbs.db
+
+# --- Arquivos de Log ---
+# Logs da aplicação não devem ser versionados.
+*.log
