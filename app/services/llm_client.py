@@ -2,7 +2,7 @@ import os
 from langchain_google_genai import ChatGoogleGenerativeAI
 from dotenv import load_dotenv
 
-# Carrega as variáveis de ambiente do arquivo .env
+
 load_dotenv()
 
 class LLMClient:
@@ -30,7 +30,6 @@ class LLMClient:
             raise ConnectionError("O cliente da LLM não foi inicializado corretamente.")
         return self.model.invoke(messages)
 
-# --- Instância Única ---
-# Criamos uma única instância do cliente para ser usada em toda a aplicação.
-# Isso é mais eficiente do que criar uma nova conexão a cada chamada.
+
+# Criei uma única instância do cliente para ser usada em toda a aplicação.
 llm_client = LLMClient()

@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ClinicAI - Assistente de Triagem</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<html lang="pt-BR"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>ClinicAI - Assistente de Triagem</title> 
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"> 
+
     <style>
         * {
-            box-sizing: border-box;
+            box-sizing: border-box; 
         }
 
         body { 
@@ -264,74 +265,62 @@
             transform: none;
         }
 
-        /* Responsive design */
+        .icon-button {
+            background: transparent;
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            color: #6b7280;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .icon-button:hover {
+            background-color: #f3f4f6;
+            color: #4b5563;
+        }
+
+        #image-input {
+            display: none;
+        }
+
         @media (max-width: 480px) {
-            body {
-                padding: 10px;
-            }
-            
-            #chat-container {
-                max-width: 100%;
-                height: 90vh;
-                border-radius: 16px;
-            }
-            
-            .chat-header {
-                padding: 16px;
-            }
-            
-            .header-new-chat-button {
-                left: 12px;
-                top: 50%;
-                transform: translateY(-50%);
-                font-size: 11px;
-                padding: 6px 8px;
-            }
-            
-            #chat-box {
-                padding: 16px;
-            }
-            
-            .message {
-                max-width: 90%;
-                padding: 12px 16px;
-            }
-            
-            .chat-controls {
-                padding: 16px;
-            }
+            body { padding: 10px; }
+            #chat-container { max-width: 100%; height: 90vh; border-radius: 16px; }
+            .chat-header { padding: 16px; }
+            .header-new-chat-button { left: 12px; top: 50%; transform: translateY(-50%); font-size: 11px; padding: 6px 8px; }
+            #chat-box { padding: 16px; }
+            .message { max-width: 90%; padding: 12px 16px; }
+            .chat-controls { padding: 16px; }
         }
 
-        /* Accessibility improvements */
         @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
+            * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
         }
 
-        /* Focus indicators */
-        button:focus-visible,
-        input:focus-visible {
+        button:focus-visible, input:focus-visible, label:focus-visible {
             outline: 2px solid #667eea;
             outline-offset: 2px;
         }
     </style>
 </head>
-<body>
+<body> 
     <div id="chat-container">
         <div class="chat-header">
-            <button class="header-new-chat-button" id="header-new-chat-button">
+            <button class="header-new-chat-button" id="header-new-chat-button"> 
                 <i class="fas fa-plus"></i>
                 Nova
             </button>
-            
             <div class="chat-title">
                 <h1><i class="fas fa-robot"></i> ClinicAI</h1>
                 <div class="subtitle">Assistente de Triagem</div>
             </div>
-            
             <div class="status-indicator"></div>
         </div>
         
@@ -339,53 +328,57 @@
         
         <div class="chat-controls">
             <form id="input-form">
-                <input type="text" id="message-input" placeholder="Digite sua mensagem..." autocomplete="off">
+                <label for="image-input" class="icon-button" title="Enviar imagem (OCR)">
+                    <i class="fas fa-paperclip"></i>
+                </label>
+                <input type="file" id="image-input" accept="image/*">
+                
+                <textarea id="message-input" placeholder="Digite sua mensagem..." autocomplete="off" rows="1"></textarea>
+                
                 <button id="send-button" type="submit">
                     <i class="fas fa-arrow-up" style="color: white;"></i>
                 </button>
             </form>
         </div>
     </div>
-
+    
     <script>
-        const chatBox = document.getElementById('chat-box');
-        const inputForm = document.getElementById('input-form');
-        const messageInput = document.getElementById('message-input');
+        const chatBox = document.getElementById('chat-box'); 
+        const inputForm = document.getElementById('input-form'); 
+        const messageInput = document.getElementById('message-input'); 
         const sendButton = document.getElementById('send-button');
         
-        let sessionId = localStorage.getItem('clinicai_session_id');
+        let sessionId = localStorage.getItem('clinicai_session_id'); 
         if (!sessionId) {
-            sessionId = 'session_' + Date.now() + Math.random().toString(36).substr(2, 9);
-            localStorage.setItem('clinicai_session_id', sessionId);
+            sessionId = 'session_' + Date.now() + Math.random().toString(36).substr(2, 9); 
+            localStorage.setItem('clinicai_session_id', sessionId); 
         }
-
-        // Auto-resize textarea
+        
         messageInput.addEventListener('input', function() {
             this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            this.style.height = (this.scrollHeight) + 'px';
         });
-
-        // Send on Enter, new line on Shift+Enter
+        
         messageInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 inputForm.dispatchEvent(new Event('submit'));
             }
         });
-
+        
         inputForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const messageText = messageInput.value.trim();
             if (!messageText) return;
-
+            
             addMessage(messageText, 'user-message');
             messageInput.value = '';
-            messageInput.style.height = 'auto';
+            messageInput.style.height = '44px'; 
             messageInput.disabled = true;
             sendButton.disabled = true;
             
             addTypingIndicator();
-
+            
             try {
                 const response = await fetch('http://localhost:8000/chat', {
                     method: 'POST',
@@ -395,11 +388,11 @@
                         message: messageText
                     })
                 });
-
+                
                 removeTypingIndicator();
-
+                
                 if (!response.ok) throw new Error('Falha na resposta da API');
-
+                
                 const data = await response.json();
                 addMessage(data.response, 'ai-message');
 
@@ -413,7 +406,7 @@
                 messageInput.focus();
             }
         });
-
+        
         function addMessage(text, className) {
             const messageElement = document.createElement('div');
             messageElement.classList.add('message', className);
@@ -421,48 +414,79 @@
             chatBox.appendChild(messageElement);
             chatBox.scrollTop = chatBox.scrollHeight;
         }
-
+        
         function addTypingIndicator() {
             const typingElement = document.createElement('div');
             typingElement.classList.add('message', 'ai-message');
             typingElement.id = 'typing-indicator';
-            
             const typingContent = document.createElement('div');
             typingContent.classList.add('typing-indicator');
-            
             for (let i = 0; i < 3; i++) {
                 const dot = document.createElement('div');
                 dot.classList.add('typing-dot');
                 typingContent.appendChild(dot);
             }
-            
             typingElement.appendChild(typingContent);
             chatBox.appendChild(typingElement);
             chatBox.scrollTop = chatBox.scrollHeight;
         }
-
+        
         function removeTypingIndicator() {
             const typingIndicator = document.getElementById('typing-indicator');
-            if (typingIndicator) {
-                typingIndicator.remove();
-            }
+            if (typingIndicator) typingIndicator.remove();
         }
-
-        const headerNewChatButton = document.getElementById('header-new-chat-button');
         
+        const headerNewChatButton = document.getElementById('header-new-chat-button');
         function handleNewChat() {
             if (confirm('Deseja realmente iniciar uma nova conversa? O histórico atual será perdido.')) {
                 localStorage.removeItem('clinicai_session_id');
                 window.location.reload();
             }
         }
-        
         headerNewChatButton.addEventListener('click', handleNewChat);
-
-        // Adiciona a mensagem inicial do agente
+        
+        
+        const imageInput = document.getElementById('image-input');
+        
+        imageInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            addMessage(`Analisando imagem: ${file.name}...`, 'ai-message');
+            const loadingMessage = chatBox.lastElementChild;
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                const response = await fetch('http://localhost:8000/ocr-upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) throw new Error('Falha ao processar a imagem.');
+                
+                const data = await response.json();
+                
+                loadingMessage.remove();
+                
+                messageInput.value = data.extracted_text;
+                addMessage(`Texto extraído da imagem: "${data.extracted_text}". Envie a mensagem se estiver correto.`, 'ai-message');
+                messageInput.focus();
+                messageInput.dispatchEvent(new Event('input'));
+            } catch (error) {
+                loadingMessage.textContent = 'Desculpe, não consegui ler a imagem. Tente novamente.';
+                console.error('Erro no OCR:', error);
+            } finally {
+                imageInput.value = '';
+            }
+        });
+        
+        
         setTimeout(() => {
-            addMessage('Olá! Eu sou a LIA, sua assistente virtual de triagem. Estou aqui para ajudar a agilizar seu atendimento, coletando suas informações iniciais, tá certo? 👩‍⚕️\n\nSó lembrando: eu não sou profissional de saúde, viu? Então não posso dar diagnóstico nem indicar tratamento. Mas simbora começar? Vai ser rapidinho! ✨', 'ai-message');
+            addMessage('Olá, seja bem-vindo(a) à ClinicAI, Vamos começar? Me diga seu nome. ✨', 'ai-message');
         }, 500);
+
     </script>
 </body>
 </html>
