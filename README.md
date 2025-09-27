@@ -2,12 +2,13 @@
 
 ## 🧠 Descrição
 
-Este projeto consiste no desenvolvimento de um sistema de triagem de emergência baseado em uma arquitetura cliente-servidor. O sistema utiliza um agente de IA para interagir com o usuário, analisar o contexto das mensagens e identificar emergências, garantindo que todas as informações necessárias sejam coletadas.
+Este projeto consiste no desenvolvimento de um sistema de triagem baseado em uma arquitetura cliente-servidor. O sistema utiliza um agente de IA para interagir com o usuário, analisar o contexto das mensagens e identificar emergências, garantindo que todas as informações necessárias sejam coletadas.
 
-O frontend se comunica com o backend via HTTP. O backend utiliza múltiplos agentes de IA:
+O frontend se comunica com o backend via HTTP. O backend possui as features:
 
 - Um agente principal para conduzir a triagem.
-- Um agente auxiliar para análise contextual.
+- Um agente identificar quando todas as informações necessárias forem obtidas
+- Um agente para tomar decisão de emergência, com base no contexto.
 - Um agente para gerar um sumário organizado das informações coletadas.
 
 Todas as interações são salvas em um banco de dados MongoDB, permitindo que a IA “lembre” de conversas anteriores.
