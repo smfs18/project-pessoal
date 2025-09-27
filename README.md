@@ -17,7 +17,7 @@ Todas as interações são salvas em um banco de dados MongoDB, permitindo que a
 
 ## 📊 Diagrama da Arquitetura
 
-![Diagrama da Arquitetura](architecture-diagram.png)
+![Diagrama da Arquitetura](architecture-diagram-agent.png)
 
 ---
 
