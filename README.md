@@ -15,6 +15,7 @@ O frontend se comunica com o backend via HTTP. O backend possui os seguintes rec
 - Um módulo de sumarização para organizar os dados coletados.
 
 Todas as interações são salvas em um banco de dados MongoDB, permitindo que a IA “lembre” das conversas anteriores
+
 ---
 
 ## 📊 Diagrama da Arquitetura
