@@ -75,7 +75,7 @@ Assista ao vídeo explicativo do projeto no YouTube:
 └── requirements.txt
 ```
 
-##🧪 Como Rodar o Projeto
+## 🧪 Como Rodar o Projeto
 
 Instale as dependências
 ```bash
