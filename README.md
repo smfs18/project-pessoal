@@ -2,17 +2,19 @@
 
 ## 🧠 Descrição
 
-Este projeto consiste no desenvolvimento de um sistema de triagem baseado em uma arquitetura cliente-servidor. O sistema utiliza um agente de IA para interagir com o usuário, analisar o contexto das mensagens e identificar emergências, garantindo que todas as informações necessárias sejam coletadas.
+Este projeto consiste no desenvolvimento de um sistema de triagem baseado em uma arquitetura cliente-servidor. O sistema utiliza um agente de IA principal para interagir com o usuário, analisar o contexto das mensagens e identificar emergências, garantindo que todas as informações sejam coletadas.
 
-O frontend se comunica com o backend via HTTP. O backend possui as features:
+O frontend se comunica com o backend via HTTP. O backend possui os seguintes recursos:
 
-- Um agente principal para conduzir a triagem.
-- Um agente identificar quando todas as informações necessárias forem obtidas
-- Um agente para tomar decisão de emergência, com base no contexto.
-- Um agente para gerar um sumário organizado das informações coletadas.
+- Um fluxo de trabalho de triagem que conduz à coleta de informações.
 
-Todas as interações são salvas em um banco de dados MongoDB, permitindo que a IA “lembre” de conversas anteriores.
+- Um módulo de verificação de conclusão da triagem.
 
+- Um módulo de emergência para identificar situações críticas.
+
+- Um módulo de sumarização para organizar os dados coletados.
+
+Todas as interações são salvas em um banco de dados MongoDB, permitindo que a IA “lembre” das conversas anteriores
 ---
 
 ## 📊 Diagrama da Arquitetura
